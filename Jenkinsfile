@@ -5,13 +5,13 @@ pipeline {
         DOCKER_IMAGE_NAME = 'my-node-app'  // Docker image name
         DOCKER_REGISTRY = 'docker.io'  // Docker Hub registry
         IMAGE_TAG = 'latest'
-        EMAIL_RECIPIENT = 'your-email@example.com'
+        EMAIL_RECIPIENT = 'ramya.moger@accenture.com'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-username/my-node-app.git'
+                git branch: 'main', url: 'https://github.com/ramyashridhar/my-node-app.git'
             }
         }
 
