@@ -26,7 +26,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                    sh 'docker run --rm ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} npm test'
+                    bat 'docker run --rm ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} npm test'
                 }
             }
         }
@@ -35,11 +35,11 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                        bat 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
                     }
 
-                    sh 'docker tag ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
-                    sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
+                    bat 'docker tag ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
+                    bat 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
                 }
             }
         }
@@ -47,7 +47,7 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    sh 'ssh user@staging-server "docker pull ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG} && docker run -d ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"'
+                    bat 'ssh user@staging-server "docker pull ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG} && docker run -d ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"'
                 }
             }
         }
