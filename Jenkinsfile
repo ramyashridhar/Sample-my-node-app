@@ -8,6 +8,12 @@ pipeline {
         EMAIL_RECIPIENT = 'ramyashridharmoger@gmail.com'
     }
 
+    parameters {
+        string(name: 'DOCKER_IMAGE_NAME', defaultValue: 'my-node-app', description: 'Docker Image Name')
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker.io', description: 'Docker Registry')
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker Image Tag')
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -35,11 +41,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        bat 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                       bat """
+                       echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+                       """
                     }
 
-                    bat 'docker tag ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
-                    bat 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}'
+                    bat "docker tag ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"
+                    bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
@@ -47,7 +55,7 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 script {
-                    bat 'ssh user@staging-server "docker pull ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG} && docker run -d ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"'
+                    bat 'ssh user@staging-server "docker pull ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG} && docker run -d ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}" || exit 1'
                 }
             }
         }
