@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'my-node-app'  // Docker image name
         DOCKER_REGISTRY = 'docker.io'  // Docker Hub registry
         IMAGE_TAG = 'latest'
-        EMAIL_RECIPIENT = 'ramya.moger@accenture.com'
+        EMAIL_RECIPIENT = 'ramyashridharmoger@gmail.com'
     }
 
     stages {
@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat 'docker build -t ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} .'
+                    bat 'docker build -t my-node-app:latest .'
                 }
             }
         }
@@ -26,7 +26,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                    bat 'docker run --rm ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} npm test'
+                    bat 'docker run --rm my-node-app:latest npm test'
                 }
             }
         }
