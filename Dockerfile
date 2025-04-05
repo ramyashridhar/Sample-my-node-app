@@ -1,20 +1,12 @@
-# Use the official Node.js image
-FROM node:14
-
-# Set the working directory in the container
+# Stage 1: Build the app
+FROM node:14 AS builder
 WORKDIR /app
-
-# Copy package.json and package-lock.json
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of the application
 COPY . .
 
-# Expose the port that your Node app runs on
-EXPOSE 3000
-
-# Run the application
-CMD ["node", "src/index.js"]
+# Stage 2: Run the app
+FROM node:14
+WORKDIR /app
+COPY --from=builder /app /app
+CMD ["npm", "start"]
