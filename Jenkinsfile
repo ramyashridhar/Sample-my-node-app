@@ -2,9 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'my-node-app'  // Docker image name
-        DOCKER_REGISTRY = 'docker.io'  // Docker Hub registry
-        IMAGE_TAG = 'latest'
         EMAIL_RECIPIENT = 'ramyashridharmoger@gmail.com'
     }
 
@@ -39,19 +36,20 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                       bat """
-                       echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-                       """
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
+                                                  usernameVariable: 'DOCKER_USERNAME', 
+                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        // Securely login to Docker Hub
+                        bat """
+                            echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+                        """
+                        // Push Docker image to Docker Hub
+                        bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"
                     }
-
-                    bat "docker tag ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"
-                    bat "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"
-                }
+               }
             }
         }
-
         stage('Deploy to Staging') {
             steps {
                 script {
